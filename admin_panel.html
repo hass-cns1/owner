@@ -1,0 +1,702 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🔧 Admin Control Panel</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #0f1419;
+            color: #e1e8ed;
+        }
+
+        .navbar {
+            background: #192734;
+            border-bottom: 1px solid #38444d;
+            padding: 16px 32px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .navbar h1 {
+            font-size: 20px;
+            font-weight: 700;
+        }
+
+        .navbar a {
+            color: #1da1f2;
+            cursor: pointer;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .navbar a:hover {
+            color: #1a91da;
+        }
+
+        .container {
+            padding: 32px;
+            max-width: 1000px;
+            margin: 0 auto;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 24px;
+            border-bottom: 1px solid #38444d;
+            padding-bottom: 16px;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            background: transparent;
+            border: none;
+            color: #657786;
+            cursor: pointer;
+            padding: 8px 16px;
+            font-size: 14px;
+            font-weight: 600;
+            border-bottom: 2px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .tab-btn:hover {
+            color: #1da1f2;
+        }
+
+        .tab-btn.active {
+            color: #1da1f2;
+            border-bottom-color: #1da1f2;
+        }
+
+        .content {
+            display: none;
+        }
+
+        .content.active {
+            display: block;
+        }
+
+        .card {
+            background: #192734;
+            border: 1px solid #38444d;
+            border-radius: 8px;
+            padding: 24px;
+            margin-bottom: 16px;
+        }
+
+        .card h3 {
+            color: #1da1f2;
+            margin-bottom: 16px;
+            font-size: 16px;
+            font-weight: 700;
+        }
+
+        .group {
+            margin-bottom: 16px;
+        }
+
+        label {
+            display: block;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+            color: #657786;
+        }
+
+        select, input, textarea {
+            width: 100%;
+            padding: 10px;
+            background: #22303c;
+            border: 1px solid #38444d;
+            border-radius: 4px;
+            color: #e1e8ed;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        select:focus, input:focus, textarea:focus {
+            outline: none;
+            border-color: #1da1f2;
+        }
+
+        button {
+            padding: 10px 20px;
+            background: #1da1f2;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 700;
+            font-size: 14px;
+            transition: background 0.2s;
+        }
+
+        button:hover {
+            background: #1a91da;
+        }
+
+        button:disabled {
+            background: #666;
+            cursor: not-allowed;
+        }
+
+        .success {
+            background: #17bf62;
+            color: #fff;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .success.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .error {
+            background: #c33;
+            color: #fff;
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+            display: none;
+            font-size: 14px;
+        }
+
+        .error.show {
+            display: block;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        .info {
+            font-size: 12px;
+            color: #657786;
+            margin-top: 8px;
+        }
+
+        .user-list {
+            background: #22303c;
+            border-radius: 4px;
+            padding: 12px;
+            margin-bottom: 12px;
+        }
+
+        .user-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 8px;
+            border-bottom: 1px solid #38444d;
+        }
+
+        .user-item:last-child {
+            border-bottom: none;
+        }
+
+        .ai-mode-toggle {
+            display: flex;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .mode-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #38444d;
+            background: #22303c;
+            color: #657786;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .mode-btn.active {
+            background: #1da1f2;
+            color: #fff;
+            border-color: #1da1f2;
+        }
+
+        .api-status {
+            padding: 12px;
+            background: #22303c;
+            border-radius: 4px;
+            margin-top: 12px;
+            font-size: 13px;
+        }
+
+        .api-status.working {
+            border-left: 3px solid #17bf62;
+            color: #17bf62;
+        }
+
+        .api-status.error {
+            border-left: 3px solid #c33;
+            color: #c33;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .stat-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .stat-card {
+            background: #22303c;
+            border: 1px solid #38444d;
+            border-radius: 4px;
+            padding: 16px;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 28px;
+            font-weight: 700;
+            color: #1da1f2;
+            margin-bottom: 4px;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #657786;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h1>🔧 Admin Control Panel</h1>
+        <a onclick="logout()">Sign Out</a>
+    </div>
+
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" onclick="switchTab('bot')">Bot Control</button>
+            <button class="tab-btn" onclick="switchTab('ai')">AI Settings</button>
+            <button class="tab-btn" onclick="switchTab('users')">Admin Users</button>
+            <button class="tab-btn" onclick="switchTab('api')">API Testing</button>
+        </div>
+
+        <!-- Bot Control Tab -->
+        <div id="bot" class="content active">
+            <div class="stat-grid">
+                <div class="stat-card">
+                    <div class="stat-value" id="serverCount">0</div>
+                    <div class="stat-label">Servers</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="aiStatus">✓</div>
+                    <div class="stat-label">AI Status</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-value" id="aiMode">Local</div>
+                    <div class="stat-label">AI Mode</div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>🟢 Bot Status</h3>
+                <div class="group">
+                    <label>Status</label>
+                    <select id="status" onchange="setStatus()">
+                        <option value="online">🟢 Online</option>
+                        <option value="idle">🟡 Idle</option>
+                        <option value="dnd">🔴 Do Not Disturb</option>
+                        <option value="invisible">⚫ Invisible</option>
+                    </select>
+                </div>
+                <div class="success" id="suc1"></div>
+            </div>
+
+            <div class="card">
+                <h3>🎭 Activity Message</h3>
+                <div class="group">
+                    <label>Status Message</label>
+                    <input type="text" id="activity" placeholder="e.g., /ask for help">
+                </div>
+                <button onclick="setActivity()">Update Activity</button>
+                <div class="success" id="suc2"></div>
+            </div>
+
+            <div class="card">
+                <h3>🔧 Maintenance Mode</h3>
+                <div class="group">
+                    <label>
+                        <input type="checkbox" id="maint" onchange="setMaint()" style="width: auto; margin-right: 8px;">
+                        Enable maintenance (pauses AI)
+                    </label>
+                </div>
+                <div class="success" id="suc3"></div>
+            </div>
+        </div>
+
+        <!-- AI Settings Tab -->
+        <div id="ai" class="content">
+            <div class="card">
+                <h3>🤖 AI Mode</h3>
+                <p class="info">Choose between local AI or Venice API</p>
+                <div class="ai-mode-toggle">
+                    <button class="mode-btn active" onclick="setAIMode('local')">🖥️ Local (Fast)</button>
+                    <button class="mode-btn" onclick="setAIMode('api')">🔗 Venice API</button>
+                </div>
+                <div class="success" id="suc4"></div>
+            </div>
+
+            <div class="card">
+                <h3>📦 Select Local Model</h3>
+                <p class="info">Only available when using Local mode. First download may take 5-10 minutes.</p>
+                <div id="models-list"></div>
+                <div class="success" id="suc5"></div>
+            </div>
+
+            <div class="card">
+                <h3>🔑 API Key Management</h3>
+                <div class="group">
+                    <label>Venice API Key</label>
+                    <input type="password" id="apiKey" placeholder="Your API key">
+                    <p class="info">Your API key is stored securely. Used only for Venice AI requests.</p>
+                </div>
+                <button onclick="updateAPIKey()">Update API Key</button>
+                <div class="success" id="suc6"></div>
+                <div class="error" id="err1"></div>
+            </div>
+        </div>
+
+        <!-- Admin Users Tab -->
+        <div id="users" class="content">
+            <div class="card">
+                <h3>👥 Manage Admin Users</h3>
+                <p class="info">Add or remove users who can access this admin panel.</p>
+
+                <div class="group">
+                    <label>Add Admin User by ID</label>
+                    <input type="text" id="newAdminId" placeholder="Discord User ID">
+                </div>
+                <button onclick="addAdmin()">Add Admin</button>
+                <div class="success" id="suc7"></div>
+                <div class="error" id="err2"></div>
+
+                <h3 style="margin-top: 24px; margin-bottom: 12px;">Current Admins</h3>
+                <div class="user-list" id="adminsList"></div>
+            </div>
+        </div>
+
+        <!-- API Testing Tab -->
+        <div id="api" class="content">
+            <div class="card">
+                <h3>🧪 API Testing</h3>
+                <p class="info">Test your Venice AI API key to ensure it's working correctly.</p>
+                <button onclick="testAPI()">Test Venice API</button>
+                <div id="apiResult" class="api-status" style="display: none;"></div>
+                <div class="success" id="suc8"></div>
+            </div>
+
+            <div class="card">
+                <h3>📝 Test Message</h3>
+                <div class="group">
+                    <label>Send Test Message to AI</label>
+                    <textarea id="testMessage" placeholder="Hello AI, how are you?" style="height: 100px;"></textarea>
+                </div>
+                <button onclick="sendTestMessage()">Send Test</button>
+                <div id="testResponse" style="background: #22303c; border-radius: 4px; padding: 12px; margin-top: 12px; display: none; color: #1da1f2;"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let currentAIMode = 'local';
+
+        // Load settings on page load
+        window.addEventListener('DOMContentLoaded', () => {
+            loadSettings();
+            loadAdmins();
+            loadModels();
+        });
+
+        function loadSettings() {
+            fetch('/api/admin/settings')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('status').value = data.status;
+                    document.getElementById('activity').value = data.activity;
+                    document.getElementById('maint').checked = data.maintenance;
+                    currentAIMode = data.ai_mode;
+
+                    // Update mode buttons
+                    document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                    document.querySelector(`.mode-btn[onclick="setAIMode('${data.ai_mode}')"]`).classList.add('active');
+
+                    // Update stat cards
+                    document.getElementById('aiMode').textContent = data.ai_mode === 'api' ? 'Venice API' : 'Local';
+                    document.getElementById('aiStatus').textContent = data.ai_status ? '✓ Ready' : '⏳ Loading';
+                    document.getElementById('serverCount').textContent = data.servers || '0';
+                });
+        }
+
+        function loadModels() {
+            fetch('/api/admin/models')
+                .then(r => r.json())
+                .then(models => {
+                    const list = document.getElementById('models-list');
+                    list.innerHTML = models.map(m => `
+                        <div style="background: #22303c; border: 1px solid #38444d; border-radius: 4px; padding: 12px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center;">
+                            <div>
+                                <strong style="color: #1da1f2;">${m.name}</strong>
+                                <div class="info">${m.size} • ${m.quality}${m.active ? ' • ✓ ACTIVE' : ''}</div>
+                            </div>
+                            <button onclick="switchModel('${m.key}')" ${m.active ? 'disabled' : ''}>
+                                ${m.active ? 'Active' : 'Switch'}
+                            </button>
+                        </div>
+                    `).join('');
+                });
+        }
+
+        function loadAdmins() {
+            fetch('/api/admin/users')
+                .then(r => r.json())
+                .then(data => {
+                    const list = document.getElementById('adminsList');
+                    list.innerHTML = data.map(userId => `
+                        <div class="user-item">
+                            <span>${userId}</span>
+                            <button onclick="removeAdmin(${userId})" style="background: #c33; padding: 5px 10px; font-size: 12px;">Remove</button>
+                        </div>
+                    `).join('');
+                });
+        }
+
+        // Tab switching
+        function switchTab(tabName) {
+            document.querySelectorAll('.content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+            event.target.classList.add('active');
+        }
+
+        // Set status
+        function setStatus() {
+            const status = document.getElementById('status').value;
+            fetch('/api/admin/status', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ status })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) show('suc1', '✓ Status updated');
+                });
+        }
+
+        // Set activity
+        function setActivity() {
+            const activity = document.getElementById('activity').value;
+            fetch('/api/admin/activity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ activity })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) show('suc2', '✓ Activity updated');
+                });
+        }
+
+        // Set maintenance
+        function setMaint() {
+            const enabled = document.getElementById('maint').checked;
+            fetch('/api/admin/maintenance', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ enabled })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) show('suc3', `✓ Maintenance ${enabled ? 'enabled' : 'disabled'}`);
+                });
+        }
+
+        // Switch AI mode
+        function setAIMode(mode) {
+            fetch('/api/admin/ai-mode', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ mode })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        currentAIMode = mode;
+                        document.querySelectorAll('.mode-btn').forEach(btn => btn.classList.remove('active'));
+                        event.target.classList.add('active');
+                        show('suc4', `✓ Switched to ${mode === 'api' ? 'Venice API' : 'Local'}`);
+                        loadSettings();
+                    }
+                });
+        }
+
+        // Switch model
+        function switchModel(modelKey) {
+            fetch('/api/admin/model/switch', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ model: modelKey })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        show('suc5', '✓ Switching model... may take 5-10 min');
+                        setTimeout(loadModels, 2000);
+                    }
+                });
+        }
+
+        // Update API key
+        function updateAPIKey() {
+            const apiKey = document.getElementById('apiKey').value;
+            if (!apiKey) {
+                showError('err1', '⚠️ Please enter an API key');
+                return;
+            }
+            fetch('/api/admin/api-key', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ api_key: apiKey })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        show('suc6', '✓ API key updated');
+                        document.getElementById('apiKey').value = '';
+                    } else {
+                        showError('err1', '❌ Failed to update API key');
+                    }
+                });
+        }
+
+        // Add admin user
+        function addAdmin() {
+            const userId = document.getElementById('newAdminId').value;
+            if (!userId || isNaN(userId)) {
+                showError('err2', '⚠️ Please enter a valid Discord user ID');
+                return;
+            }
+            fetch('/api/admin/add-user', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ user_id: parseInt(userId) })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        show('suc7', '✓ Admin user added');
+                        document.getElementById('newAdminId').value = '';
+                        loadAdmins();
+                    } else {
+                        showError('err2', d.error || '❌ Failed to add admin user');
+                    }
+                });
+        }
+
+        // Remove admin user
+        function removeAdmin(userId) {
+            if (confirm('Remove this admin user?')) {
+                fetch('/api/admin/remove-user', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ user_id: userId })
+                })
+                    .then(r => r.json())
+                    .then(d => {
+                        if (d.success) {
+                            show('suc7', '✓ Admin user removed');
+                            loadAdmins();
+                        }
+                    });
+            }
+        }
+
+        // Test API
+        function testAPI() {
+            fetch('/api/admin/test-api', {
+                method: 'POST'
+            })
+                .then(r => r.json())
+                .then(d => {
+                    const result = document.getElementById('apiResult');
+                    result.style.display = 'block';
+                    if (d.working) {
+                        result.className = 'api-status working';
+                        result.textContent = '✓ API is working! Response time: ' + d.time + 'ms';
+                    } else {
+                        result.className = 'api-status error';
+                        result.textContent = '❌ API Error: ' + d.error;
+                    }
+                });
+        }
+
+        // Send test message
+        function sendTestMessage() {
+            const message = document.getElementById('testMessage').value;
+            if (!message) {
+                alert('Please enter a message');
+                return;
+            }
+            fetch('/api/admin/test-message', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ message })
+            })
+                .then(r => r.json())
+                .then(d => {
+                    const response = document.getElementById('testResponse');
+                    response.style.display = 'block';
+                    response.textContent = d.response;
+                });
+        }
+
+        // Helper functions
+        function show(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        function showError(id, msg) {
+            const el = document.getElementById(id);
+            el.textContent = msg;
+            el.classList.add('show');
+            setTimeout(() => el.classList.remove('show'), 3000);
+        }
+
+        // Logout
+        function logout() {
+            window.location = '/admin/logout';
+        }
+    </script>
+</body>
+</html>
